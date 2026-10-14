@@ -88,6 +88,8 @@ export type PacketKind =
   | 'bgp'
   | 'tcp'
   | 'dhcp'
+  | 'pppoe'
+  | 'ppp'
   | 'error'
 
 export interface FrameInfo {

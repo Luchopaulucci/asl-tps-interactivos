@@ -157,7 +157,7 @@ export function p6Topology(c1Ip?: string, r2Ip?: string, r2Vlan = 100): Topology
     width: 1000,
     height: 330,
     segments: [
-      { id: 'acceso', label: 'acceso · vlan-acceso', sub: `VID 100 · 100.64.1.0/24 · IPoE`, kind: 'link' },
+      { id: 'acceso', label: 'acceso · vlan-acceso', sub: 'VID 100 · 100.64.1.0/24 · IPoE', kind: 'link' },
       { id: 'lan1', label: 'lan1', sub: '192.168.1.0/24 · DHCP .100–.200', kind: 'link' },
     ],
     devices: [
@@ -177,5 +177,66 @@ export function p6Topology(c1Ip?: string, r2Ip?: string, r2Vlan = 100): Topology
         ifaces: [{ name: 'ether2', mac: P6_C1_MAC, ip: c1Ip, prefix: c1Ip ? 24 : undefined, segment: 'lan1' }],
       },
     ],
+  }
+}
+
+/** P6·B: la misma topología; C1 y lan1 no participan. La sesión PPPoE vive en 100.64.0.x (no es el pool IPoE). */
+export function p6PppoeTopology(opts: {
+  r2Ip?: string
+  r2Prefix?: number
+  r2Iface?: string
+  r1Ip?: string
+  r1Prefix?: number
+  r1Iface?: string
+  r2Vlan?: number
+} = {}): Topology {
+  const r2Vlan = opts.r2Vlan ?? 100
+  const t = p6Topology(undefined, opts.r2Ip, r2Vlan)
+  return {
+    ...t,
+    segments: t.segments.map((s) =>
+      s.id === 'acceso'
+        ? { ...s, sub: 'VID 100 · PPPoE · 100.64.0.x' }
+        : s.id === 'lan1'
+          ? { ...s, sub: 'primera mitad · no se toca', dashed: true }
+          : s,
+    ),
+    devices: t.devices.map((d) => {
+      if (d.id === 'C1') return { ...d, muted: true, note: 'no participa' }
+      if (d.id === 'R2') {
+        return {
+          ...d,
+          note: opts.r2Ip ? `abonado · ${opts.r2Ip}` : 'abonado',
+          ifaces: [
+            {
+              name: opts.r2Iface ?? `vlan-acceso (ether2, VID ${r2Vlan})`,
+              mac: P6_R2_MAC,
+              ip: opts.r2Ip,
+              prefix: opts.r2Ip ? (opts.r2Prefix ?? 32) : undefined,
+              segment: 'acceso',
+              vlan: r2Vlan,
+            },
+          ],
+        }
+      }
+      if (d.id === 'R1') {
+        return {
+          ...d,
+          note: opts.r1Ip ? `concentrador · ${opts.r1Ip}` : 'concentrador',
+          ifaces: [
+            {
+              name: opts.r1Iface ?? 'vlan-acceso (ether2)',
+              mac: mac('01', '02'),
+              ip: opts.r1Ip,
+              prefix: opts.r1Ip ? (opts.r1Prefix ?? 32) : undefined,
+              segment: 'acceso',
+              vlan: 100,
+            },
+            d.ifaces[1],
+          ],
+        }
+      }
+      return d
+    }),
   }
 }

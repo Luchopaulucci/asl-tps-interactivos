@@ -8,6 +8,7 @@ import P3 from './pages/P3'
 import P4 from './pages/P4'
 import P5 from './pages/P5'
 import P6 from './pages/P6'
+import P6B from './pages/P6B'
 
 export const NAV = [
   { to: '/guia-0', short: 'G0', label: 'Guía 0 · Convenciones' },
@@ -16,7 +17,8 @@ export const NAV = [
   { to: '/p3', short: 'P3', label: 'P3 · Backbone (estático)' },
   { to: '/p4', short: 'P4', label: 'P4 · OSPF' },
   { to: '/p5', short: 'P5', label: 'P5 · BGP' },
-  { to: '/p6', short: 'P6', label: 'P6 · DHCP e IPoE' },
+  { to: '/p6', short: 'P6A', label: 'P6·A · DHCP e IPoE' },
+  { to: '/p6b', short: 'P6B', label: 'P6·B · PPPoE' },
 ]
 
 export default function App() {
@@ -73,6 +75,7 @@ export default function App() {
           <Route path="/p4" element={<P4 />} />
           <Route path="/p5" element={<P5 />} />
           <Route path="/p6" element={<P6 />} />
+          <Route path="/p6b" element={<P6B />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </main>

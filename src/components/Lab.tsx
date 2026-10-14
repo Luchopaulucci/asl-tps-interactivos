@@ -195,6 +195,8 @@ function Legend({ packets }: { packets: PacketAnim[] }) {
     bgp: 'BGP',
     tcp: 'TCP',
     dhcp: 'DHCP',
+    pppoe: 'PPPoE Discovery (0x8863)',
+    ppp: 'PPP sesión (LCP / auth / IPCP)',
     error: 'error',
   }
   return (

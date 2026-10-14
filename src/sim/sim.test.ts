@@ -7,6 +7,7 @@ import { p2Presets, p3Presets } from '../data/staticRoutes'
 import { OspfSim, defaultOspfRouters, electDrBdr, finalState } from './ospf'
 import { BgpSim, sessionCanEstablish } from './bgp'
 import { DhcpSim, allocate, clientNext, DORA } from './dhcp'
+import { PppoeSim, allocatePpp, DISCOVERY, POOL_PPPOE, findSecret, poolCount, serviceCut, DEFAULT_SECRETS } from './pppoe'
 import type { Device } from './types'
 
 const preset = (list: typeof p2Presets, id: string) => list.find((p) => p.id === id)!.routes
@@ -223,5 +224,64 @@ describe('P6 · DHCP', () => {
     const bad = new DhcpSim('ipoe-vlan-mismatch', p6Topology, macs).run('ipoe-vlan-mismatch')
     expect(bad.leases).toHaveLength(0)
     expect(bad.client.ip).toBeUndefined()
+  })
+})
+
+describe('P6 · PPPoE', () => {
+  it('el pool 100.64.0.10–100 tiene 91 direcciones y asigna desde el principio', () => {
+    expect(poolCount(POOL_PPPOE.start, POOL_PPPOE.end)).toBe(91)
+    expect(allocatePpp(POOL_PPPOE, [])).toBe('100.64.0.10')
+    expect(allocatePpp(POOL_PPPOE, ['100.64.0.10'])).toBe('100.64.0.11')
+    expect(allocatePpp({ start: '10.0.0.1', end: '10.0.0.1' }, ['10.0.0.1'])).toBeNull()
+  })
+
+  it('el secret es el contrato: usuario/contraseña y disabled', () => {
+    expect(findSecret(DEFAULT_SECRETS, 'abonado1', 'secreto1')?.profile).toBe('plan-10m')
+    expect(findSecret(DEFAULT_SECRETS, 'abonado2', 'secreto2')?.profile).toBe('plan-50m')
+    expect(findSecret(DEFAULT_SECRETS, 'abonado1', 'otra')).toBeUndefined()
+    expect(serviceCut(true, false)).toEqual({ online: true, canReconnect: false })
+    expect(serviceCut(true, true)).toEqual({ online: false, canReconnect: false })
+  })
+
+  it('descubrimiento PADI/PADO/PADR/PADS, después LCP, auth e IPCP; la IP sale del pool PPP', () => {
+    const sim = new PppoeSim('session').run('session')
+    const codes = sim.steps.flatMap((s) => s.packets.filter((p) => p.kind === 'pppoe').map((p) => p.layers[1].fields.find((f) => f.k === 'código')!.v))
+    expect(codes.slice(0, 4)).toEqual([...DISCOVERY])
+    expect(sim.sessions[0]).toMatchObject({ name: 'abonado1', service: 'isp' })
+    expect(sim.client.ip).toBe('100.64.0.10')
+    expect(sim.queues[0]).toMatchObject({ name: '<pppoe-abonado1>', limit: '10M/10M', dynamic: true })
+    const protos = sim.steps.flatMap((s) => s.packets.filter((p) => p.kind === 'ppp').map((p) => p.layers[1].fields.find((f) => f.k === 'PPP protocolo')!.v))
+    expect(protos.some((p) => p.includes('LCP'))).toBe(true)
+    expect(protos.some((p) => p.includes('IPCP'))).toBe(true)
+  })
+
+  it('VLAN distinta: el PADI se pierde y no hay sesión', () => {
+    const sim = new PppoeSim('vlan-mismatch').run('vlan-mismatch')
+    expect(sim.sessions).toHaveLength(0)
+    expect(sim.client.ip).toBeUndefined()
+    expect(sim.steps.some((s) => s.packets.some((p) => p.lost))).toBe(true)
+  })
+
+  it('sólo deshabilitar el secret deja la sesión viva; con remove ya no reconecta', () => {
+    const sim = new PppoeSim('cut-secret-only').run('cut-secret-only')
+    const onlySecret = sim.steps.find((s) => s.title.startsWith('Sólo el secret'))!
+    expect(onlySecret.tables.find((t) => t.id === 'active')!.rows.length).toBe(1)
+    expect(sim.sessions).toHaveLength(0)
+    expect(sim.secrets.find((s) => s.name === 'abonado1')!.disabled).toBe(true)
+    expect(sim.steps.some((s) => s.title.startsWith('Auth · las credenciales'))).toBe(true)
+  })
+
+  it('con IPoE en la misma VLAN, el corte PPPoE no impide entrar por DHCP', () => {
+    const sim = new PppoeSim('cut-then-ipoe').run('cut-then-ipoe')
+    expect(sim.sessions).toHaveLength(0)
+    expect(sim.ipoeLease?.server).toBe('dhcp-acceso')
+    expect(sim.client.ip?.startsWith('100.64.1.')).toBe(true)
+  })
+
+  it('cambiar el perfil y reconectar materializa la cola nueva', () => {
+    const sim = new PppoeSim('change-plan').run('change-plan')
+    expect(sim.secrets.find((s) => s.name === 'abonado1')!.profile).toBe('plan-50m')
+    expect(sim.queues[0].limit).toBe('50M/50M')
+    expect(sim.sessions[0].name).toBe('abonado1')
   })
 })
