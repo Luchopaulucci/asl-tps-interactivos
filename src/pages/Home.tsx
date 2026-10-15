@@ -7,7 +7,8 @@ const CARDS = [
   { to: '/p3', tag: 'P3', title: 'Estrella / backbone', text: 'Los mismos cuatro routers en un segmento compartido 10.10.10.0/24. Todos son vecinos, pero las rutas siguen a mano: N×(N−1).', sees: ['gateway correcto', '12 rutas', '3 líneas de traceroute'] },
   { to: '/p4', tag: 'P4', title: 'OSPF', text: 'Hello, 2-Way, elección de DR/BDR, Full, inundación de LSA y SPF. Después apagá un router y mirá cómo reconverge solo.', sees: ['DR = R4, BDR = R3', 'Full vs 2-Way', 'dead 40 s'] },
   { to: '/p5', tag: 'P5', title: 'BGP', text: 'R1 (AS 65001) y R3 (AS 65003): TCP 179, OPEN, KEEPALIVE, UPDATE con AS_PATH y la ruta b con distance 20.', sees: ['established', 'una sola punta = no sube', 'eBGP 20 vs OSPF 110'] },
-  { to: '/p6', tag: 'P6', title: 'DHCP e IPoE', text: 'DORA paso a paso: Discover en broadcast, Offer, Request, Ack. El lease en R1, el network que se olvida y el mismo servidor sobre la VLAN 100.', sees: ['xid / yiaddr', 'lease bound', 'VID 100'] },
+  { to: '/p6', tag: 'P6·A', title: 'DHCP e IPoE', text: 'DORA paso a paso: Discover en broadcast, Offer, Request, Ack. El lease en R1, el network que se olvida y el mismo servidor sobre la VLAN 100.', sees: ['xid / yiaddr', 'lease bound', 'VID 100'] },
+  { to: '/p6b', tag: 'P6·B', title: 'PPPoE', text: 'Antes de dar dirección, usuario y contraseña. PADI/PADO/PADR/PADS, LCP, auth, IPCP (la IP no sale de DHCP) y la cola del plan que aparece sola. Después, cortar el servicio — y por qué a veces no alcanza.', sees: ['session-id', 'IPCP 100.64.0.x', 'cola <pppoe-abonado1>'] },
 ]
 
 export default function Home() {
@@ -40,7 +41,7 @@ export default function Home() {
         ))}
       </div>
       <p className="mt-6 text-sm text-slate-500">
-        La materia tiene 6 prácticas publicadas (P1 a P6); la P7 (NAT / CGNAT) todavía no está. En P6 se cubre la mitad DHCP + IPoE; la mitad PPPoE no está en el material disponible.
+        La materia tiene 6 prácticas publicadas (P1 a P6, esta última en dos mitades); la P7 (NAT / CGNAT) todavía no está.
       </p>
     </div>
   )

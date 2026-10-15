@@ -11,6 +11,8 @@ export const KIND_COLOR: Record<PacketKind, string> = {
   bgp: '#db2777',
   tcp: '#64748b',
   dhcp: '#0891b2',
+  pppoe: '#c2410c',
+  ppp: '#7e22ce',
   error: '#dc2626',
 }
 

@@ -49,8 +49,9 @@ export default function Guia0() {
                 ['net-1-2 (P2)', '10.10.10.0/24', 'punto a punto'],
                 ['net-2-3 (P2)', '10.10.11.0/24', ''],
                 ['net-3-4 (P2)', '10.10.12.0/24', ''],
-                ['pool-dhcp (P6)', '192.168.1.100–200', 'arranca en .100 para no pisar el .10'],
-                ['pool-pppoe (P6)', '100.64.0.10–100', 'RFC 6598, lo que P7 traduce'],
+                ['pool-dhcp (P6·A)', '192.168.1.100–200', 'arranca en .100 para no pisar el .10'],
+                ['pool-ipoe (P6·A)', '100.64.1.10–100', 'IPoE sobre vlan-acceso VID 100'],
+                ['pool-pppoe (P6·B)', '100.64.0.10–100', 'RFC 6598; lo consume PPP, no dhcp-server'],
               ].map((r) => (
                 <tr key={r[0]} className="border-t border-slate-100">
                   <td className="py-1.5 pr-2 font-medium">{r[0]}</td>
