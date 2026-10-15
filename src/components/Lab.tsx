@@ -124,7 +124,7 @@ export default function Lab({ topo, steps, sniffNodes }: { topo: Topology; steps
       </div>
 
       <div className="grid gap-4 lg:grid-cols-5">
-        <div className="space-y-4 lg:col-span-3">
+        <div className="min-w-0 space-y-4 lg:col-span-3">
           <div className={`rounded-2xl border bg-white p-4 shadow-sm ${step.status === 'fail' ? 'border-red-300' : step.status === 'ok' ? 'border-green-300' : 'border-slate-200'}`}>
             <div className="mb-1 flex items-start gap-2">
               <StatusDot status={step.status} />
@@ -132,21 +132,21 @@ export default function Lab({ topo, steps, sniffNodes }: { topo: Topology; steps
             </div>
             <p className="text-[15px] leading-relaxed text-slate-700">{step.text}</p>
             {step.cmd && (
-              <div className="mt-3">
+              <div className="mt-3 min-w-0">
                 <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Comando</div>
-                <pre className="rounded-lg bg-slate-900 p-3 font-mono text-[13px] text-teal-200">{step.cmd}</pre>
+                <pre className="max-w-full overflow-x-auto rounded-lg bg-slate-900 p-3 font-mono text-[13px] text-teal-200">{step.cmd}</pre>
               </div>
             )}
             {step.output && (
-              <div className="mt-3">
+              <div className="mt-3 min-w-0">
                 <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Salida</div>
-                <pre className="rounded-lg bg-slate-800 p-3 font-mono text-[12.5px] text-slate-100">{step.output}</pre>
+                <pre className="max-w-full overflow-x-auto rounded-lg bg-slate-800 p-3 font-mono text-[12.5px] text-slate-100">{step.output}</pre>
               </div>
             )}
           </div>
           <Inspector packets={uniquePackets} all={step.packets} sel={pk} onSel={setPk} />
         </div>
-        <div className="lg:col-span-2">
+        <div className="min-w-0 lg:col-span-2">
           <Tables tables={step.tables} prev={prev?.tables} highlight={step.highlight} topo={curTopo} />
         </div>
       </div>

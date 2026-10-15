@@ -21,7 +21,7 @@ export function PageHeader({ tag, title, subtitle, chips }: { tag: string; title
 
 export function Card({ title, children, className = '' }: { title?: string; children: ReactNode; className?: string }) {
   return (
-    <section className={`rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 ${className}`}>
+    <section className={`min-w-0 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5 ${className}`}>
       {title && <h2 className="mb-3 text-lg font-semibold text-slate-900">{title}</h2>}
       <div className="space-y-3 text-[15px] leading-relaxed text-slate-700">{children}</div>
     </section>
@@ -64,8 +64,8 @@ export function Commands({ items }: { items: { cmd: string; what: string; where?
     <Card title="Comandos de la práctica">
       <div className="space-y-2">
         {items.map((c) => (
-          <div key={c.cmd} className="grid gap-1 rounded-lg border border-slate-200 p-2.5 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:gap-3">
-            <pre className="rounded-md bg-slate-900 px-2.5 py-1.5 font-mono text-[12.5px] text-teal-200">{c.cmd}</pre>
+          <div key={c.cmd} className="grid min-w-0 gap-1 rounded-lg border border-slate-200 p-2.5 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] md:gap-3">
+            <pre className="max-w-full overflow-x-auto rounded-md bg-slate-900 px-2.5 py-1.5 font-mono text-[12.5px] text-teal-200">{c.cmd}</pre>
             <div className="text-sm">
               {c.where && <span className="mr-1 rounded bg-slate-100 px-1.5 py-0.5 text-xs font-semibold text-slate-600">{c.where}</span>}
               {c.what}
@@ -159,5 +159,5 @@ export function Trouble({ rows }: { rows: [string, string, string][] }) {
 }
 
 export function Grid2({ children }: { children: ReactNode }) {
-  return <div className="mt-6 grid gap-4 lg:grid-cols-2">{children}</div>
+  return <div className="mt-6 grid min-w-0 gap-4 lg:grid-cols-2 [&>*]:min-w-0">{children}</div>
 }
